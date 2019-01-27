@@ -7,7 +7,7 @@ Display all available masters in a given text list. Define list in UI or local t
 import vanilla
 import codecs
 import GlyphsApp
-
+from Foundation import NSMutableAttributedString, NSAttributedString
 f = Glyphs.font
 masterlen = len(f.masters)
 
@@ -98,53 +98,23 @@ class Master(object):
 
         repeater = ""
         wlist = ""
-
+        if layout == 1:
+            separator = " "
+        else:
+            separator = "\n"
+        
+        attributedString = NSMutableAttributedString.new()
+        
         for w in wordlist:
 
-            s=0
-            while s<masterlen: 
-                if layout==1:
-                    repeater = repeater + w + " "  
-                else:
-                    repeater = repeater + w + "\n"  
-                s=s+1
-            
-            wlist = wlist + repeater + "\n"
-            repeater = ""
+            for master in f.masters:
+                attributes = {"GSLayerIdAttrib": master.id}
+                attributedWord = NSAttributedString.alloc().initWithString_attributes_(w + separator, attributes)
+                attributedString.appendAttributedString_(attributedWord)
+            attributedString.appendAttributedString_(NSAttributedString.alloc().initWithString_("\n"))
 
-        Glyphs.currentDocument.windowController().addTabWithString_( wlist ) # add text
-        currentEditViewController = Glyphs.currentDocument.windowController().activeEditViewController()
-        currentTab = currentEditViewController.graphicView()
-
-        s=0
-        location_start = 0
-        listlen = len(wordlist)
-
-        while s<listlen:
-
-            myRangeOfGlyphs = NSRange()
-            t=0
-
-            while t<masterlen: 
-
-                myRangeOfGlyphs.location = location_start
-                myRangeOfGlyphs.length = len(wordlist[s])
-
-                # assign master value to range
-                masterID = f.masters[t].id
-                Attributes = { "GSLayerIdAttrib": masterID }
-                currentTab.textStorage().text().addAttributes_range_( Attributes, myRangeOfGlyphs )
-
-                location_start = location_start + len(wordlist[s]) + 1
-                t+=1
-
-            location_start+=1
-            s=s+1
-
-        if not self.SaveP( self ):
-            print "Could not save preferences." 
-
-        currentEditViewController.forceRedraw()
+        currentTab = Glyphs.font.newTab().graphicView()
+        currentTab.insertText_(attributedString)
 
     def GoDblC(self, sender):
 
