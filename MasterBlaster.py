@@ -11,9 +11,9 @@ import GlyphsApp
 f = Glyphs.font
 masterlen = len(f.masters)
 
-class Master( object ):
+class Master(object):
 
-    def __init__( self ):
+    def __init__(self):
 
         global presets
 
@@ -21,11 +21,11 @@ class Master( object ):
             fd = codecs.open('MasterBlaster-presets.txt','r',encoding='utf-8')
             data = fd.read()
             presets = data.split("\n")
-        except:    
+        except:
             # if txt file doesn't load
             presets = [
                 u"arrowroot,barley,chervil,dumpling,endive,flaxseed,garbanzo,hijiki,ishtu,jicama,kale,lychee,marjioram,nectarine,oxtail,pizza,quinoa,roquefort,squash,tofu,uppuma,vanilla,wheat,xergis,yogurt,zweiback",
-                u"Arrowroot,Barley,Chervil,Dumpling,Endive,Flaxseed,Garbanzo,Hijiki,Ishtu,Jicama,Kale,Lychee,Marjioram,Nectarine,Oxtail,Pizza,Quinoa,Roquefort,Squash,Tofu,Uppuma,Vanilla,Wheat,Xergis,Yogurt,Zweiback",            
+                u"Arrowroot,Barley,Chervil,Dumpling,Endive,Flaxseed,Garbanzo,Hijiki,Ishtu,Jicama,Kale,Lychee,Marjioram,Nectarine,Oxtail,Pizza,Quinoa,Roquefort,Squash,Tofu,Uppuma,Vanilla,Wheat,Xergis,Yogurt,Zweiback",
                 u"ARROWROOT,BARLEY,CHERVIL,DUMPLING,ENDIVE,FLAXSEED,GARBANZO,HIJIKI,ISHTU,JICAMA,KALE,LYCHEE,MARJIORAM,NECTARINE,OXTAIL,PIZZA,QUINOA,ROQUEFORT,SQUASH,TOFU,UPPUMA,VANILLA,WHEAT,XERGIS,YOGURT,ZWEIBACK",
                 "00000,00100,00200,00300,00400,00500,00600,00700,00800,00900"
                 ]
@@ -36,18 +36,18 @@ class Master( object ):
         windowHeight = 380
 
         self.w = vanilla.FloatingWindow(
-            ( windowWidth, windowHeight ), # default window size
+            (windowWidth, windowHeight), # default window size
             "MasterBlaster", # window title
             autosaveName = "com.LNP.MasterBlaster.mainwindow" # stores last window position and size
         )
 
 
         self.w.titleCustom = vanilla.TextBox((20, 15, -10, 17), "Comma separated list:")
-        self.w.inputCustom = vanilla.EditText( (20, 45, 300, 20), "", sizeStyle = 'small')
+        self.w.inputCustom = vanilla.EditText((20, 45, 300, 20), "", sizeStyle='small')
         self.w.titlePreset = vanilla.TextBox((20, 75, -10, 17), "OR Select preset from local txt file:")
-        self.w.presets = vanilla.List((20, 105, 305, 180), presets, doubleClickCallback=self.GoDblC, autohidesScrollers = False, allowsEmptySelection = True, showColumnTitles=True)
-        self.w.radioGroup = vanilla.RadioGroup((20, 285, 250, 40),["Stacked", "Side-by-side"],isVertical = False, sizeStyle='regular')
-        self.w.runButton = vanilla.Button((20, 330, 120, 30), "List as Masters", sizeStyle='regular', callback=self.GoButton )
+        self.w.presets = vanilla.List((20, 105, 305, 180), presets, doubleClickCallback=self.GoDblC, autohidesScrollers=False, allowsEmptySelection=True, showColumnTitles=True)
+        self.w.radioGroup = vanilla.RadioGroup((20, 285, 250, 40), ["Stacked", "Side-by-side"], isVertical=False, sizeStyle='regular')
+        self.w.runButton = vanilla.Button((20, 330, 120, 30), "List as Masters", sizeStyle='regular', callback=self.GoButton)
 
         self.w.radioGroup.set(1)
 
@@ -58,7 +58,7 @@ class Master( object ):
         self.w.open()
         self.w.makeKey()
 
-    def SaveP( self, sender ):
+    def SaveP(self, sender):
         try:
             Glyphs.defaults["com.LNP.MasterBlaster.inputCustom"] = self.w.inputCustom.get()
             Glyphs.defaults["com.LNP.MasterBlaster.radioGroup"] = self.w.radioGroup.get()
@@ -66,31 +66,32 @@ class Master( object ):
             return False
         return True
 
-    def LoadP( self ):
+    def LoadP(self):
         try:
-            self.w.inputCustom.set( Glyphs.defaults["com.LNP.MasterBlaster.inputCustom"] )
-            self.w.radioGroup.set( Glyphs.defaults["com.LNP.MasterBlaster.radioGroup"] )
+            self.w.inputCustom.set(Glyphs.defaults["com.LNP.MasterBlaster.inputCustom"])
+            self.w.radioGroup.set(Glyphs.defaults["com.LNP.MasterBlaster.radioGroup"])
         except:
             return False
         return True
 
-    def Sanitise( self, wordlist):
+    def Sanitise(self, wordlist):
 
-        santised_list = list()        
+        santised_list = list()
 
         for w in wordlist:
 
             tmp_entry = ""
 
             for l in w:
-                if f.glyphs[l]: 
-                    tmp_entry = tmp_entry + l
+                if f.glyphs[l]:
+                    tmp_entry += l
 
-            if tmp_entry!="": santised_list.append(tmp_entry)
+            if tmp_entry != "":
+                santised_list.append(tmp_entry)
 
         return santised_list
 
-    def Blaster( self, wordlist ):
+    def Blaster(self, wordlist):
 
         layout = self.w.radioGroup.get() # 0=stacked 1=sidebyside
         wordlist = self.Sanitise(wordlist)
@@ -145,19 +146,20 @@ class Master( object ):
 
         currentEditViewController.forceRedraw()
 
-    def GoDblC( self, sender ):
+    def GoDblC(self, sender):
 
         preset_selections = self.w.presets.getSelection()
-        for p in preset_selections: preselect = presets[p] 
+        for p in preset_selections:
+            preselect = presets[p]
         self.Blaster(preselect.split(","))
 
-    def GoButton( self, sender ):
+    def GoButton(self, sender):
 
         customT = self.w.inputCustom.get()
         preset_selections = self.w.presets.getSelection()
 
         # force permit one selection for now
-        for p in preset_selections: preselect = presets[p] 
+        for p in preset_selections: preselect = presets[p]
 
         if customT != "":
             self.Blaster(customT.split(","))
